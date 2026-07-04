@@ -1,27 +1,25 @@
 import { useState } from 'react'
-import usuarios from '../data/usuarios.json'
+import { loginApi } from '../services/api'
 
 function Login({ onLogin, mensajeLogin }) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
-  function iniciarSesion(e) {
+  async function iniciarSesion(e) {
     e.preventDefault()
 
-    const usuarioEncontrado = usuarios.find(
-      (usuario) =>
-        usuario.username === username &&
-        usuario.password === password
-    )
+    try {
+      const data = await loginApi({
+        username,
+        password
+      })
 
-    if (!usuarioEncontrado) {
+      setError('')
+      onLogin(data.token)
+    } catch (error) {
       setError('Usuario o contraseña incorrectos')
-      return
     }
-
-    setError('')
-    onLogin()
   }
 
   return (
