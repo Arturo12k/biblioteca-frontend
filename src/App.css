@@ -558,3 +558,30 @@ tr:last-child td {
     height: 220px;
   }
 }
+.secondary-button {
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  background: #e2e8f0;
+  color: #334155;
+  transition: 0.2s ease;
+}
+
+.secondary-button:hover {
+  background: #cbd5e1;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}

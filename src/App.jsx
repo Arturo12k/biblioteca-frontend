@@ -111,7 +111,7 @@ function App() {
             <span className="eyebrow">Panel administrativo</span>
             <h1>Gestión de biblioteca</h1>
             <p>
-              Administra autores y libros desde una interfaz conectada al backend Spring Boot.
+              Administra autores y libros.
             </p>
           </div>
 

@@ -37,3 +37,19 @@ export async function eliminarLibroApi(id) {
     method: 'DELETE'
   })
 }
+
+export async function actualizarAutorApi(id, autor) {
+  return fetch(`${API_URL}/autores/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(autor)
+  })
+}
+
+export async function actualizarLibroApi(id, libro) {
+  return fetch(`${API_URL}/libros/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(libro)
+  })
+}

@@ -1,5 +1,9 @@
 import { useState } from 'react'
-import { crearLibroApi, eliminarLibroApi } from '../services/api'
+import {
+  crearLibroApi,
+  eliminarLibroApi,
+  actualizarLibroApi
+} from '../services/api'
 
 function Libros({ libros, autores, cargarLibros }) {
   const [titulo, setTitulo] = useState('')
@@ -7,8 +11,9 @@ function Libros({ libros, autores, cargarLibros }) {
   const [autorId, setAutorId] = useState('')
   const [numeroPaginas, setNumeroPaginas] = useState('')
   const [urlPortada, setUrlPortada] = useState('')
+  const [libroEditando, setLibroEditando] = useState(null)
 
-  async function crearLibro(e) {
+  async function guardarLibro(e) {
     e.preventDefault()
 
     if (!autorId) {
@@ -16,20 +21,45 @@ function Libros({ libros, autores, cargarLibros }) {
       return
     }
 
-    await crearLibroApi({
+    const libro = {
       titulo,
       isbn,
       autorId,
       numeroPaginas: Number(numeroPaginas),
       urlPortada
-    })
+    }
 
+    if (libroEditando) {
+      await actualizarLibroApi(libroEditando.id, libro)
+      setLibroEditando(null)
+    } else {
+      await crearLibroApi(libro)
+    }
+
+    limpiarFormulario()
+    cargarLibros()
+  }
+
+  function iniciarEdicion(libro) {
+    setLibroEditando(libro)
+    setTitulo(libro.titulo)
+    setIsbn(libro.isbn)
+    setAutorId(libro.autor?.id || '')
+    setNumeroPaginas(libro.numeroPaginas || '')
+    setUrlPortada(libro.urlPortada || '')
+  }
+
+  function cancelarEdicion() {
+    setLibroEditando(null)
+    limpiarFormulario()
+  }
+
+  function limpiarFormulario() {
     setTitulo('')
     setIsbn('')
     setAutorId('')
     setNumeroPaginas('')
     setUrlPortada('')
-    cargarLibros()
   }
 
   async function eliminarLibro(id) {
@@ -51,7 +81,7 @@ function Libros({ libros, autores, cargarLibros }) {
         <span className="count-pill">{libros.length} registrados</span>
       </div>
 
-      <form className="form-grid books-form" onSubmit={crearLibro}>
+      <form className="form-grid books-form" onSubmit={guardarLibro}>
         <label>
           Título
           <input
@@ -105,8 +135,18 @@ function Libros({ libros, autores, cargarLibros }) {
         </label>
 
         <button className="primary-button" type="submit">
-          Crear libro
+          {libroEditando ? 'Guardar cambios' : 'Crear libro'}
         </button>
+
+        {libroEditando && (
+          <button
+            className="secondary-button"
+            type="button"
+            onClick={cancelarEdicion}
+          >
+            Cancelar
+          </button>
+        )}
       </form>
 
       {libros.length === 0 ? (
@@ -135,12 +175,21 @@ function Libros({ libros, autores, cargarLibros }) {
                   <span>{libro.numeroPaginas} páginas</span>
                 </div>
 
-                <button
-                  className="danger-button"
-                  onClick={() => eliminarLibro(libro.id)}
-                >
-                  Eliminar
-                </button>
+                <div className="card-actions">
+                  <button
+                    className="secondary-button"
+                    onClick={() => iniciarEdicion(libro)}
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    className="danger-button"
+                    onClick={() => eliminarLibro(libro.id)}
+                  >
+                    Eliminar
+                  </button>
+                </div>
               </div>
             </article>
           ))}

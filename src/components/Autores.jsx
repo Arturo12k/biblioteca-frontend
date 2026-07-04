@@ -1,21 +1,46 @@
 import { useState } from 'react'
-import { crearAutorApi, eliminarAutorApi } from '../services/api'
+import {
+  crearAutorApi,
+  eliminarAutorApi,
+  actualizarAutorApi
+} from '../services/api'
 
 function Autores({ autores, cargarAutores, cargarLibros }) {
   const [nombre, setNombre] = useState('')
   const [fechaNacimiento, setFechaNacimiento] = useState('')
+  const [autorEditando, setAutorEditando] = useState(null)
 
-  async function crearAutor(e) {
+  async function guardarAutor(e) {
     e.preventDefault()
 
-    await crearAutorApi({
+    const autor = {
       nombre,
       fechaNacimiento
-    })
+    }
+
+    if (autorEditando) {
+      await actualizarAutorApi(autorEditando.id, autor)
+      setAutorEditando(null)
+    } else {
+      await crearAutorApi(autor)
+    }
 
     setNombre('')
     setFechaNacimiento('')
     cargarAutores()
+    cargarLibros()
+  }
+
+  function iniciarEdicion(autor) {
+    setAutorEditando(autor)
+    setNombre(autor.nombre)
+    setFechaNacimiento(autor.fechaNacimiento || '')
+  }
+
+  function cancelarEdicion() {
+    setAutorEditando(null)
+    setNombre('')
+    setFechaNacimiento('')
   }
 
   async function eliminarAutor(id) {
@@ -39,7 +64,7 @@ function Autores({ autores, cargarAutores, cargarLibros }) {
         <span className="count-pill">{autores.length} registrados</span>
       </div>
 
-      <form className="form-grid" onSubmit={crearAutor}>
+      <form className="form-grid" onSubmit={guardarAutor}>
         <label>
           Nombre del autor
           <input
@@ -60,8 +85,18 @@ function Autores({ autores, cargarAutores, cargarLibros }) {
         </label>
 
         <button className="primary-button" type="submit">
-          Crear autor
+          {autorEditando ? 'Guardar cambios' : 'Crear autor'}
         </button>
+
+        {autorEditando && (
+          <button
+            className="secondary-button"
+            type="button"
+            onClick={cancelarEdicion}
+          >
+            Cancelar
+          </button>
+        )}
       </form>
 
       {autores.length === 0 ? (
@@ -87,7 +122,14 @@ function Autores({ autores, cargarAutores, cargarLibros }) {
                     <strong>{autor.nombre}</strong>
                   </td>
                   <td>{autor.fechaNacimiento || 'Sin fecha'}</td>
-                  <td>
+                  <td className="actions-cell">
+                    <button
+                      className="secondary-button"
+                      onClick={() => iniciarEdicion(autor)}
+                    >
+                      Editar
+                    </button>
+
                     <button
                       className="danger-button"
                       onClick={() => eliminarAutor(autor.id)}
