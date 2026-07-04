@@ -1,16 +1,183 @@
-# React + Vite
+# Biblioteca Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Portal web desarrollado en React para la gestión de libros y autores.
 
-Currently, two official plugins are available:
+Este proyecto forma parte de una prueba técnica. Se conecta con un backend en Spring Boot protegido con JWT.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tecnologías utilizadas
 
-## React Compiler
+- React
+- Vite
+- JavaScript
+- CSS
+- Fetch API
+- LocalStorage
+- JWT
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Funcionalidades implementadas
 
-## Expanding the Oxlint configuration
+### Login
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+- Pantalla de inicio de sesión.
+- Login real contra backend.
+- Almacenamiento de JWT en `localStorage`.
+- Manejo de sesión con duración de 1 hora.
+- Cierre de sesión.
+
+### Autores
+
+- Listar autores.
+- Crear autor.
+- Editar autor.
+- Eliminar autor.
+- Al eliminar un autor, también se eliminan sus libros asociados desde backend.
+
+### Libros
+
+- Listar libros.
+- Crear libro.
+- Editar libro.
+- Eliminar libro.
+- Asociación de libro con autor.
+- Visualización de portada si existe URL.
+
+### Diseño
+
+- Interfaz tipo dashboard.
+- Componentes separados.
+- Diseño responsive.
+- Vista de tarjetas para libros.
+- Tabla para autores.
+- Navegación lateral.
+- Estados vacíos.
+
+## Estructura principal
+
+```text
+src/
+ ├─ components/
+ │  ├─ Login.jsx
+ │  ├─ Autores.jsx
+ │  └─ Libros.jsx
+ ├─ services/
+ │  └─ api.js
+ ├─ App.jsx
+ ├─ App.css
+ └─ index.css
+```
+
+## Requisitos previos
+
+- Node.js
+- npm
+- Backend corriendo en `http://localhost:8080`
+
+## Cómo ejecutar el proyecto
+
+Clonar el repositorio:
+
+```bash
+git clone URL_DEL_REPOSITORIO
+cd biblioteca-frontend
+```
+
+Instalar dependencias:
+
+```bash
+npm install
+```
+
+Ejecutar:
+
+```bash
+npm run dev
+```
+
+La aplicación quedará disponible en:
+
+```text
+http://localhost:5173
+```
+
+## Configuración de proxy
+
+El proyecto usa proxy de Vite para comunicarse con el backend.
+
+Archivo:
+
+```text
+vite.config.js
+```
+
+Configuración:
+
+```js
+server: {
+  proxy: {
+    '/api': {
+      target: 'http://localhost:8080',
+      changeOrigin: true,
+      rewrite: (path) => path.replace(/^\/api/, '')
+    }
+  }
+}
+```
+
+Esto permite consumir endpoints usando rutas como:
+
+```text
+/api/login
+/api/autores
+/api/libros
+```
+
+## Usuario de prueba
+
+```text
+Usuario: admin
+Contraseña: 123456
+```
+
+## Flujo de uso
+
+1. Iniciar el backend.
+2. Iniciar el frontend.
+3. Entrar con el usuario de prueba.
+4. Crear autores.
+5. Crear libros asociados a autores.
+6. Editar o eliminar registros desde la interfaz.
+
+## Seguridad
+
+Después del login, el frontend guarda el token JWT en `localStorage`.
+
+Todas las peticiones protegidas envían el token en el header:
+
+```http
+Authorization: Bearer TOKEN
+```
+
+## Alcance actual
+
+Implementado:
+
+- Login conectado con backend.
+- Manejo de sesión por 1 hora.
+- CRUD completo de autores.
+- CRUD completo de libros.
+- Consumo de API protegida con JWT.
+- Diseño responsive.
+- Componentes separados.
+
+Pendiente por límite de tiempo:
+
+- Carga masiva de libros por CSV.
+- Validación de ISBN mediante SOAP.
+- Obtención automática de portada desde API REST externa.
+- Paginación visual avanzada.
+- Búsqueda visual desde frontend.
+- Resaltado detallado de errores por campo.
+
+## Notas
+
+Por el límite de tiempo de la prueba, se priorizó una versión funcional y presentable conectada al backend real. La interfaz permite probar el flujo principal de gestión de libros y autores.
