@@ -1,188 +1,145 @@
 import { useEffect, useState } from 'react'
+import Login from './components/Login'
+import Autores from './components/Autores'
+import Libros from './components/Libros'
+import { obtenerAutores, obtenerLibros } from './services/api'
 import './App.css'
 
+const UNA_HORA = 60 * 60 * 1000
+
 function App() {
+  const [logueado, setLogueado] = useState(false)
+  const [mensajeLogin, setMensajeLogin] = useState('')
+
   const [autores, setAutores] = useState([])
   const [libros, setLibros] = useState([])
 
-  const [nombre, setNombre] = useState('')
-  const [fechaNacimiento, setFechaNacimiento] = useState('')
+  function validarSesion() {
+    const token = localStorage.getItem('token')
+    const loginTime = localStorage.getItem('loginTime')
 
-  const [titulo, setTitulo] = useState('')
-  const [isbn, setIsbn] = useState('')
-  const [autorId, setAutorId] = useState('')
-  const [numeroPaginas, setNumeroPaginas] = useState('')
-  const [urlPortada, setUrlPortada] = useState('')
+    if (!token || !loginTime) {
+      setLogueado(false)
+      return false
+    }
+
+    const sesionExpirada = Date.now() - Number(loginTime) > UNA_HORA
+
+    if (sesionExpirada) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('loginTime')
+      setLogueado(false)
+      setMensajeLogin('La sesión expiró. Inicia sesión nuevamente.')
+      return false
+    }
+
+    setLogueado(true)
+    return true
+  }
+
+  function iniciarSesion() {
+    localStorage.setItem('token', 'token-simulado')
+    localStorage.setItem('loginTime', Date.now().toString())
+
+    setMensajeLogin('')
+    setLogueado(true)
+  }
+
+  function cerrarSesion() {
+    localStorage.removeItem('token')
+    localStorage.removeItem('loginTime')
+    setLogueado(false)
+  }
 
   async function cargarAutores() {
-    const response = await fetch('/api/autores')
-    const data = await response.json()
+    const data = await obtenerAutores()
     setAutores(data.content || [])
   }
 
   async function cargarLibros() {
-    const response = await fetch('/api/libros')
-    const data = await response.json()
+    const data = await obtenerLibros()
     setLibros(data.content || [])
   }
 
-  async function crearAutor(e) {
-    e.preventDefault()
-
-    await fetch('/api/autores', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nombre, fechaNacimiento })
-    })
-
-    setNombre('')
-    setFechaNacimiento('')
-    cargarAutores()
-  }
-
-  async function eliminarAutor(id) {
-    await fetch(`/api/autores/${id}`, {
-      method: 'DELETE'
-    })
-
-    cargarAutores()
-    cargarLibros()
-  }
-
-  async function crearLibro(e) {
-    e.preventDefault()
-
-    if (!autorId) {
-      alert('Selecciona un autor')
-      return
-    }
-
-    await fetch('/api/libros', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        titulo,
-        isbn,
-        autorId,
-        numeroPaginas: Number(numeroPaginas),
-        urlPortada
-      })
-    })
-
-    setTitulo('')
-    setIsbn('')
-    setAutorId('')
-    setNumeroPaginas('')
-    setUrlPortada('')
-    cargarLibros()
-  }
-
-  async function eliminarLibro(id) {
-    await fetch(`/api/libros/${id}`, {
-      method: 'DELETE'
-    })
-
-    cargarLibros()
-  }
-
   useEffect(() => {
-    cargarAutores()
-    cargarLibros()
+    validarSesion()
   }, [])
 
+  useEffect(() => {
+    if (logueado) {
+      cargarAutores()
+      cargarLibros()
+    }
+  }, [logueado])
+
+  if (!logueado) {
+    return (
+      <Login
+        onLogin={iniciarSesion}
+        mensajeLogin={mensajeLogin}
+      />
+    )
+  }
+
   return (
-    <div className="container">
-      <h1>Biblioteca</h1>
+    <div className="app-shell">
+      <aside className="sidebar">
+        <div className="brand">
+          <div className="brand-icon">B</div>
+          <div>
+            <h2>Biblioteca</h2>
+            <p>Gestión de libros</p>
+          </div>
+        </div>
 
-      <section>
-        <h2>Autores</h2>
+        <nav className="nav-menu">
+          <a href="#autores">Autores</a>
+          <a href="#libros">Libros</a>
+          <a href="http://localhost:8080/swagger-ui/index.html" target="_blank">
+            Swagger
+          </a>
+        </nav>
 
-        <form onSubmit={crearAutor}>
-          <input
-            type="text"
-            placeholder="Nombre del autor"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-          />
+        <button className="logout-button" onClick={cerrarSesion}>
+          Cerrar sesión
+        </button>
+      </aside>
 
-          <input
-            type="date"
-            value={fechaNacimiento}
-            onChange={(e) => setFechaNacimiento(e.target.value)}
-          />
+      <main className="main-content">
+        <section className="hero-card">
+          <div>
+            <span className="eyebrow">Panel administrativo</span>
+            <h1>Gestión de biblioteca</h1>
+            <p>
+              Administra autores y libros desde una interfaz conectada al backend Spring Boot.
+            </p>
+          </div>
 
-          <button type="submit">Crear autor</button>
-        </form>
+          <div className="stats-grid">
+            <div className="stat-card">
+              <span>{autores.length}</span>
+              <p>Autores</p>
+            </div>
 
-        <ul>
-          {autores.map((autor) => (
-            <li key={autor.id}>
-              {autor.nombre} - {autor.fechaNacimiento}
-              <button onClick={() => eliminarAutor(autor.id)}>
-                Eliminar
-              </button>
-            </li>
-          ))}
-        </ul>
-      </section>
+            <div className="stat-card">
+              <span>{libros.length}</span>
+              <p>Libros</p>
+            </div>
+          </div>
+        </section>
 
-      <hr />
+        <Autores
+          autores={autores}
+          cargarAutores={cargarAutores}
+          cargarLibros={cargarLibros}
+        />
 
-      <section>
-        <h2>Libros</h2>
-
-        <form onSubmit={crearLibro}>
-          <input
-            type="text"
-            placeholder="Título"
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
-          />
-
-          <input
-            type="text"
-            placeholder="ISBN"
-            value={isbn}
-            onChange={(e) => setIsbn(e.target.value)}
-          />
-
-          <input
-            type="number"
-            placeholder="Número de páginas"
-            value={numeroPaginas}
-            onChange={(e) => setNumeroPaginas(e.target.value)}
-          />
-
-          <input
-            type="text"
-            placeholder="URL portada"
-            value={urlPortada}
-            onChange={(e) => setUrlPortada(e.target.value)}
-          />
-
-          <select value={autorId} onChange={(e) => setAutorId(e.target.value)}>
-            <option value="">Selecciona un autor</option>
-            {autores.map((autor) => (
-              <option key={autor.id} value={autor.id}>
-                {autor.nombre}
-              </option>
-            ))}
-          </select>
-
-          <button type="submit">Crear libro</button>
-        </form>
-
-        <ul>
-          {libros.map((libro) => (
-            <li key={libro.id}>
-              <strong>{libro.titulo}</strong> — {libro.autor?.nombre} — {libro.isbn}
-              <button onClick={() => eliminarLibro(libro.id)}>
-                Eliminar
-              </button>
-            </li>
-          ))}
-        </ul>
-      </section>
+        <Libros
+          libros={libros}
+          autores={autores}
+          cargarLibros={cargarLibros}
+        />
+      </main>
     </div>
   )
 }
