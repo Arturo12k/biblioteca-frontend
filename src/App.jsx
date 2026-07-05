@@ -14,6 +14,13 @@ function App() {
   const [autores, setAutores] = useState([])
   const [libros, setLibros] = useState([])
 
+  const [autorPage, setAutorPage] = useState(0)
+  const [autorTotalPages, setAutorTotalPages] = useState(1)
+
+  const [libroPage, setLibroPage] = useState(0)
+  const [libroTotalPages, setLibroTotalPages] = useState(1)
+  const [buscarLibros, setBuscarLibros] = useState('')
+
   function validarSesion() {
     const token = localStorage.getItem('token')
     const loginTime = localStorage.getItem('loginTime')
@@ -51,14 +58,21 @@ function App() {
     setLogueado(false)
   }
 
-  async function cargarAutores() {
-    const data = await obtenerAutores()
+  async function cargarAutores(page = autorPage) {
+    const data = await obtenerAutores(page, 5)
+
     setAutores(data.content || [])
+    setAutorPage(data.number || 0)
+    setAutorTotalPages(Math.max(data.totalPages || 1, 1))
   }
 
-  async function cargarLibros() {
-    const data = await obtenerLibros()
+  async function cargarLibros(page = libroPage, buscar = buscarLibros) {
+    const data = await obtenerLibros(page, 6, buscar)
+
     setLibros(data.content || [])
+    setLibroPage(data.number || 0)
+    setLibroTotalPages(Math.max(data.totalPages || 1, 1))
+    setBuscarLibros(buscar)
   }
 
   useEffect(() => {
@@ -67,8 +81,8 @@ function App() {
 
   useEffect(() => {
     if (logueado) {
-      cargarAutores()
-      cargarLibros()
+      cargarAutores(0)
+      cargarLibros(0, '')
     }
   }, [logueado])
 
@@ -118,12 +132,12 @@ function App() {
           <div className="stats-grid">
             <div className="stat-card">
               <span>{autores.length}</span>
-              <p>Autores</p>
+              <p>Autores en página</p>
             </div>
 
             <div className="stat-card">
               <span>{libros.length}</span>
-              <p>Libros</p>
+              <p>Libros en página</p>
             </div>
           </div>
         </section>
@@ -132,12 +146,18 @@ function App() {
           autores={autores}
           cargarAutores={cargarAutores}
           cargarLibros={cargarLibros}
+          paginaActual={autorPage}
+          totalPaginas={autorTotalPages}
         />
 
         <Libros
           libros={libros}
           autores={autores}
           cargarLibros={cargarLibros}
+          paginaActual={libroPage}
+          totalPaginas={libroTotalPages}
+          buscarLibros={buscarLibros}
+          setBuscarLibros={setBuscarLibros}
         />
       </main>
     </div>
