@@ -30,6 +30,8 @@ Este proyecto forma parte de una prueba técnica. Se conecta con un backend en S
 - Crear autor.
 - Editar autor.
 - Eliminar autor.
+- Paginación visual.
+- Manejo de errores en formulario.
 - Al eliminar un autor, también se eliminan sus libros asociados desde backend.
 
 ### Libros
@@ -40,6 +42,9 @@ Este proyecto forma parte de una prueba técnica. Se conecta con un backend en S
 - Eliminar libro.
 - Asociación de libro con autor.
 - Visualización de portada si existe URL.
+- Búsqueda visual por título o autor.
+- Paginación visual.
+- Manejo de errores en formulario.
 
 ### Diseño
 
@@ -50,6 +55,8 @@ Este proyecto forma parte de una prueba técnica. Se conecta con un backend en S
 - Tabla para autores.
 - Navegación lateral.
 - Estados vacíos.
+- Mensajes de éxito y error.
+- Campos resaltados cuando hay errores.
 
 ## Estructura principal
 
@@ -145,7 +152,9 @@ Contraseña: 123456
 3. Entrar con el usuario de prueba.
 4. Crear autores.
 5. Crear libros asociados a autores.
-6. Editar o eliminar registros desde la interfaz.
+6. Buscar libros por título o autor.
+7. Navegar entre páginas de autores o libros.
+8. Editar o eliminar registros desde la interfaz.
 
 ## Seguridad
 
@@ -156,6 +165,46 @@ Todas las peticiones protegidas envían el token en el header:
 ```http
 Authorization: Bearer TOKEN
 ```
+
+## Búsqueda de libros
+
+La pantalla de libros permite buscar por:
+
+- Título del libro.
+- Nombre del autor.
+
+La búsqueda consume el endpoint del backend:
+
+```http
+GET /libros?buscar=texto
+```
+
+## Paginación
+
+La interfaz incluye paginación visual para:
+
+- Autores.
+- Libros.
+
+Se muestran controles de:
+
+- Página actual.
+- Total de páginas.
+- Botón anterior.
+- Botón siguiente.
+
+## Manejo de errores
+
+El frontend muestra errores cuando:
+
+- El nombre del autor está vacío.
+- El título del libro está vacío.
+- El ISBN está vacío.
+- El número de páginas no es válido.
+- No se selecciona autor.
+- El backend rechaza una validación.
+
+También muestra mensajes de éxito cuando se crea, edita o elimina un registro.
 
 ## Alcance actual
 
@@ -178,8 +227,9 @@ Pendiente por límite de tiempo:
 - Carga masiva de libros por CSV.
 - Validación de ISBN mediante SOAP.
 - Obtención automática de portada desde API REST externa.
-
+- Resaltado de errores por campo con mayor detalle.
+- Pruebas automatizadas del frontend.
 
 ## Notas
 
-Por el límite de tiempo de la prueba, se priorizó una versión funcional y presentable conectada al backend real. La interfaz permite probar el flujo principal de gestión de libros y autores.
+Por el límite de tiempo de la prueba, se priorizó una versión funcional, presentable y conectada al backend real. La interfaz permite probar el flujo principal de gestión de libros y autores, incluyendo autenticación, CRUD, búsqueda, paginación y manejo básico de errores.
