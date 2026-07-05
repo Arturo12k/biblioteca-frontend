@@ -165,6 +165,10 @@ Implementado:
 - Manejo de sesión por 1 hora.
 - CRUD completo de autores.
 - CRUD completo de libros.
+- Búsqueda visual de libros por título o autor.
+- Paginación visual de autores.
+- Paginación visual de libros.
+- Manejo visual de errores.
 - Consumo de API protegida con JWT.
 - Diseño responsive.
 - Componentes separados.
