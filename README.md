@@ -174,9 +174,7 @@ Pendiente por límite de tiempo:
 - Carga masiva de libros por CSV.
 - Validación de ISBN mediante SOAP.
 - Obtención automática de portada desde API REST externa.
-- Paginación visual avanzada.
-- Búsqueda visual desde frontend.
-- Resaltado detallado de errores por campo.
+
 
 ## Notas
 
